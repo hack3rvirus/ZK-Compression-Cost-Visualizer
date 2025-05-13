@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZK Compression Cost Visualizer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f9fafb; }
+        .chart-container { max-width: 600px; margin: 0 auto; }
+        .footer-link:hover { color: #1d4ed8; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <header class="bg-gray-600 text-white py-6">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold">ZK Compression Cost Visualizer</h1>
+            <p class="mt-2 text-lg">A tool to compare rent costs of ZK Compression vs. regular Solana accounts</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 flex-grow">
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4">About This Tool</h2>
+            <p class="text-gray-700">
+                The ZK Compression Cost Visualizer helps developers understand the cost savings of using ZK Compression on Solana. By leveraging compressed accounts, you can reduce on-chain state costs by orders of magnitude while maintaining security and performance. Enter the number of accounts to see how much you can save compared to regular Solana accounts.
+            </p>
+            <p class="text-gray-700 mt-2">
+                <strong>How to Use:</strong> Input the number of accounts in the form below, click "Calculate," and view the cost comparison in the chart. The history table tracks all calculations, stored securely in a MySQL database.
+            </p>
+        </section>
+
+        <section class="mb-8">
+            <form id="cost-form" class="bg-white shadow-md rounded-lg p-6">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label for="account_count" class="block text-gray-700 font-medium mb-2">Number of Accounts</label>
+                    <input type="number" id="account_count" name="account_count" value="100" min="1" required
+                           class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="submit" class="w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+                    Calculate
+                </button>
+            </form>
+        </section>
+
+        <section class="chart-container">
+            <canvas id="chart"></canvas>
+        </section>
+
+        <section class="mt-8">
+            <h2 class="text-2xl font-semibold mb-4">Calculation History</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full bg-white shadow-md rounded-lg">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="px-4 py-2 text-left">Accounts</th>
+                            <th class="px-4 py-2 text-left">Regular Cost ($)</th>
+                            <th class="px-4 py-2 text-left">Compressed Cost ($)</th>
+                            <th class="px-4 py-2 text-left">Savings ($)</th>
+                            <th class="px-4 py-2 text-left">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in history %}
+                        <tr>
+                            <td class="px-4 py-2">{{ entry.account_count }}</td>
+                            <td class="px-4 py-2">{{ entry.regular_cost|floatformat:2 }}</td>
+                            <td class="px-4 py-2">{{ entry.compressed_cost|floatformat:2 }}</td>
+                            <td class="px-4 py-2">{{ entry.savings|floatformat:2 }}</td>
+                            <td class="px-4 py-2">{{ entry.created_at }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-4 py-2 text-center">No calculations yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h3 class="text-lg font-semibold">ZK Compression Hackathon</h3>
+                    <p class="text-sm">Built for the 1000x Breakout Hackathon by Solana Foundation</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="https://www.zkcompression.com/" target="_blank" class="footer-link text-sm hover:underline">ZK Compression</a>
+                    <a href="https://www.colosseum.org/files/Breakout%20Hackathon%20Official%20Rules%202025.pdf" target="_blank" class="footer-link text-sm hover:underline">Hackathon Rules</a>
+                    <a href="https://github.com/Lightprotocol/zk-compression-summer-hackathon/blob/main/ideas.md" target="_blank" class="footer-link text-sm hover:underline">Project Ideas</a>
+                </div>
+            </div>
+            <div class="mt-4 flex justify-center space-x-4">
+                <a href="x.com/blackhatVIRUS" target="_blank" class="text-white hover:text-blue-400">
+                    <i class="fab fa-x-twitter fa-lg"></i>
+                </a>
+                <a href="https://t.me/HACK3RVIRUS" target="_blank" class="text-white hover:text-blue-400">
+                    <i class="fab fa-telegram-plane fa-lg"></i>
+                </a>
+                <a href="https://github.com/hack3rvirus/ZK-Compression-Cost-Visualizer.git" target="_blank" class="text-white hover:text-blue-400" title="View on GitHub">
+                    <i class="fa-brands far fa-github fa-lg"></i>
+                </a>
+            </div>
+            <p class="text-center text-sm mt-4">© 2025 ZK Compression Cost Visualizer. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/static/cost_visualizer/js/chart.js"></script>
+</body>
+</html>

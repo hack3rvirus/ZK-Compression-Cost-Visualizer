@@ -1,0 +1,37 @@
+# Python
+   *.pyc
+   __pycache__/
+   *.pyo
+   *.pyd
+   .Python
+   *.egg-info/
+   *.egg
+   dist/
+   build/
+
+   # Virtual environment
+   .venv/
+   env/
+   venv/
+
+   # Django
+   *.log
+   *.pot
+   *.sqlite3
+   staticfiles/
+   media/
+
+   # Environment variables
+   .env
+
+   # IDE
+   .idea/
+   *.sublime-project
+   *.sublime-workspace
+
+   # Windows
+   Thumbs.db
+   Desktop.ini
+
+   # MySQL
+   *.sql
